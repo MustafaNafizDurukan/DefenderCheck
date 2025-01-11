@@ -8,3 +8,24 @@ Takes a binary as input and splits it until it pinpoints that exact byte that Mi
 ![](/demo.gif)
 
 **Note:** Defender must be enabled on your system, but the realtime protection and automatic sample submission features should be disabled.
+
+## Changes in This Fork
+
+- **Custom `tempDir` Support**: You can now specify a custom temporary directory when running DefenderCheck.
+    - By default, the tool uses **`C:\Temp`**.
+    - If you supply a second argument to DefenderCheck, that path will be used instead.
+
+### Usage Example (New Custom Directory)
+
+```powershell
+# Default usage (uses C:\Temp):
+.\DefenderCheck.exe C:\Temp\mimikatz.exe
+
+# Specify a custom temporary directory:
+.\DefenderCheck.exe C:\Temp\mimikatz.exe D:\MyCustomTemp
+```
+
+Where:
+
+- `C:\Temp\mimikatz.exe` is the **binary** you want DefenderCheck to analyze.
+- `D:\MyCustomTemp` is your **optional** override for the temp folder.
