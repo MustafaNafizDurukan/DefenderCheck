@@ -16,9 +16,13 @@ namespace DefenderCheck
                 Console.WriteLine("Usage: DefenderCheck.exe [path/to/file]");
                 return;
             }
-            
+
+            string tempDir = @"C:\Temp";
+            if (args.Length > 1)
+                tempDir = args[1];
+
             bool debug = false;
-            if (args.Length == 2 && args[1].Contains("debug"))
+            if (args.Length == 3 && args[2].Contains("debug"))
             {
                 debug = true;
             }
@@ -38,13 +42,14 @@ namespace DefenderCheck
                 return;
             }
             
-            if (!Directory.Exists(@"C:\Temp"))
+            if (!Directory.Exists(tempDir))
             {
-                Console.WriteLine(@"[-] C:\Temp doesn't exist. Creating it...");
-                Directory.CreateDirectory(@"C:\Temp");
+                Console.WriteLine(@"[-] {tempDir} doesn't exist. Creating it...");
+                Directory.CreateDirectory(tempDir);
             }
-                   
-            string testfilepath = @"C:\Temp\testfile.exe";
+            
+
+            string testfilepath = Path.Combine(tempDir, "testfile.exe");
             byte[] originalfilecontents = File.ReadAllBytes(targetfile);
             int originalfilesize = originalfilecontents.Length;
             Console.WriteLine("Target file size: {0} bytes", originalfilecontents.Length);
@@ -62,7 +67,7 @@ namespace DefenderCheck
                 if (detectionStatus.Equals("ThreatFound"))
                 {
                     if (debug) { Console.WriteLine("Threat found. Halfsplitting again..."); }
-                    byte[] temparray = HalfSplitter(splitarray1, lastgood);
+                    byte[] temparray = HalfSplitter(testfilepath, splitarray1, lastgood);
                     Array.Resize(ref splitarray1, temparray.Length);
                     Array.Copy(temparray, splitarray1, temparray.Length);
                 }
@@ -96,13 +101,13 @@ namespace DefenderCheck
 
         //}
 
-        public static byte[] HalfSplitter(byte[] originalarray, int lastgood) //Will round down to nearest int
+        public static byte[] HalfSplitter(string testfilepath, byte[] originalarray, int lastgood) //Will round down to nearest int
         {
             byte[] splitarray = new byte[(originalarray.Length - lastgood)/2+lastgood];
             if (originalarray.Length == splitarray.Length +1)
             {
                 Console.WriteLine("[!] Identified end of bad bytes at offset 0x{0:X} in the original file", originalarray.Length);
-                Scan(@"C:\Temp\testfile.exe", true);
+                Scan(testfilepath, true);
                 byte[] offendingBytes = new byte[256];
 
                 if (originalarray.Length < 256)
@@ -115,7 +120,7 @@ namespace DefenderCheck
                     Buffer.BlockCopy(originalarray, originalarray.Length - 256, offendingBytes, 0, 256);
                 }
                 HexDump(offendingBytes, 16);
-                File.Delete(@"C:\Temp\testfile.exe");
+                File.Delete(testfilepath);
                 Environment.Exit(0);
             }
             Array.Copy(originalarray, splitarray, splitarray.Length);
