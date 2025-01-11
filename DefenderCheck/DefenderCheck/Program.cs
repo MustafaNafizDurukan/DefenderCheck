@@ -19,14 +19,14 @@ namespace DefenderCheck
 
             string tempDir = @"C:\Temp";
             if (args.Length > 1)
-                tempDir = args[1];
+                tempDir = Path.GetFullPath(args[1]);
 
             bool debug = false;
             if (args.Length == 3 && args[2].Contains("debug"))
             {
                 debug = true;
             }
-
+                
             string targetfile = args[0];
             if (!File.Exists(targetfile))
             {
@@ -71,7 +71,7 @@ namespace DefenderCheck
                     Array.Resize(ref splitarray1, temparray.Length);
                     Array.Copy(temparray, splitarray1, temparray.Length);
                 }
-                else if (detectionStatus.Equals("NoThreatFound"))
+                else if (detectionStatus.Equals("NoThreatFound")) 
                 {
                     if (debug) { Console.WriteLine("No threat found. Going up 50% of current size."); };
                     lastgood = splitarray1.Length;
